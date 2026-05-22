@@ -17,7 +17,7 @@ pipeline {
 
         stage('Clone Code') {
             steps {
-                git 'YOUR_GITHUB_REPO_URL'
+                git 'https://github.com/SHREYASGOWDRUCS/DEVOPS_OEE.git'
             }
         }
 
