@@ -3,7 +3,7 @@ apiVersion: apps/v1
 kind: Deployment
 
 metadata:
-  name: student-portal
+  name: student-portal-rolling
 
 spec:
   replicas: 2

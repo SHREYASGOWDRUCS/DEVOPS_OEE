@@ -3,7 +3,7 @@ apiVersion: apps/v1
 kind: Deployment
 
 metadata:
-  name: student-green
+  name: student-blue-green
 
 spec:
   replicas: 2

@@ -39,20 +39,20 @@ pipeline {
         }
 
         stage('Deploy') {
-            steps {
+    steps {
 
-                script {
+        script {
 
-                    if (env.STRATEGY == "rolling") {
+            if (env.STRATEGY == "rolling") {
 
-                        echo "Deploying using Rolling Deployment"
+                bat 'kubectl apply -f rolling.yaml'
 
-                    } else {
+            } else {
 
-                        echo "Deploying using Blue-Green Deployment"
-                    }
-                }
+                bat 'kubectl apply -f blue-green.yaml'
             }
         }
+    }
+}
     }
 }
