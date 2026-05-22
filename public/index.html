@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Portal - DevOps Traffic Simulation</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- ===== NAVBAR ===== -->
+    <nav class="navbar">
+        <div>
+            <h1>🎓 Student Portal</h1>
+        </div>
+        <span class="version-badge">Version 2 - DevOps Demo</span>
+    </nav>
+
+    <!-- ===== MAIN CONTAINER ===== -->
+    <div class="container">
+        <!-- ===== WELCOME SECTION ===== -->
+        <div class="card">
+            <h2>Welcome to DevOps Student Portal</h2>
+            <p>This application demonstrates traffic simulation and intelligent deployment strategy selection.</p>
+        </div>
+
+        <!-- ===== TRAFFIC SIMULATION CARD ===== -->
+        <div class="card traffic-card">
+            <h2>📊 Traffic Simulation</h2>
+            
+            <!-- Traffic Status Display -->
+            <div class="traffic-display">
+                <div class="traffic-metric">
+                    <span class="metric-label">Current Requests:</span>
+                    <span class="metric-value" id="requestCount">0</span>
+                </div>
+                <div class="traffic-metric">
+                    <span class="metric-label">Traffic Level:</span>
+                    <span class="metric-value traffic-badge low" id="trafficLevel">LOW</span>
+                </div>
+            </div>
+
+            <!-- Control Buttons -->
+            <div class="button-group">
+                <button id="generateBtn" class="btn btn-primary" onclick="generateTraffic()">
+                    ⚡ Generate Traffic (100 requests)
+                </button>
+                <button id="resetBtn" class="btn btn-secondary" onclick="resetTraffic()">
+                    🔄 Reset Traffic
+                </button>
+            </div>
+
+            <!-- Progress Indicator -->
+            <div id="progressContainer" class="progress-container" style="display: none;">
+                <p id="progressText">Generating traffic...</p>
+                <div class="progress-bar">
+                    <div id="progressBar" class="progress-fill"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== DEPLOYMENT STRATEGY CARD ===== -->
+        <div class="card deployment-card">
+            <h2>🚀 Deployment Strategy Selection</h2>
+            
+            <div class="deployment-info">
+                <div class="strategy-box">
+                    <p class="strategy-label">Selected Strategy:</p>
+                    <h3 id="deploymentStrategy" class="strategy-name">Rolling Deployment</h3>
+                </div>
+
+                <div class="strategy-description">
+                    <div id="strategyDetails"></div>
+                </div>
+            </div>
+
+            <!-- Strategy Legend -->
+            <div class="strategy-legend">
+                <div class="legend-item">
+                    <span class="legend-badge low-badge">LOW</span>
+                    <p><strong>Rolling Deployment</strong> - Gradual rollout, safer for low traffic</p>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-badge high-badge">HIGH</span>
+                    <p><strong>Blue-Green Deployment</strong> - Zero-downtime switch, ideal for high traffic</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== INFO CARD ===== -->
+        <div class="card info-card">
+            <h2>ℹ️ How It Works</h2>
+            <ul class="info-list">
+                <li><strong>Request Counting:</strong> Every HTTP request increments a counter</li>
+                <li><strong>Traffic Detection:</strong> &lt;50 requests = LOW, ≥50 requests = HIGH</li>
+                <li><strong>Smart Deployment:</strong> System automatically selects the best deployment strategy based on traffic</li>
+                <li><strong>Rolling Strategy:</strong> Used for low traffic - updates deployed gradually without downtime</li>
+                <li><strong>Blue-Green Strategy:</strong> Used for high traffic - switches between two identical environments</li>
+                <li><strong>Live Updates:</strong> UI refreshes in real-time to show current metrics</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- ===== CLIENT-SIDE JAVASCRIPT ===== -->
+    <script>
+        // ========== FETCH TRAFFIC DATA ==========
+        // Retrieves current traffic metrics from the server
+        async function fetchTrafficData() {
+            try {
+                const response = await fetch('/api/traffic');
+                const data = await response.json();
+                updateUI(data);
+            } catch (error) {
+                console.error('Error fetching traffic data:', error);
+            }
+        }
+
+        // ========== UPDATE UI WITH TRAFFIC DATA ==========
+        // Updates the dashboard with current metrics
+        function updateUI(data) {
+            const { requests, traffic, deployment } = data;
+
+            // Update request count display
+            document.getElementById('requestCount').textContent = requests;
+
+            // Update traffic level badge with appropriate styling
+            const trafficBadge = document.getElementById('trafficLevel');
+            trafficBadge.textContent = traffic;
+            trafficBadge.className = `metric-value traffic-badge ${traffic === 'HIGH' ? 'high' : 'low'}`;
+
+            // Update deployment strategy display
+            document.getElementById('deploymentStrategy').textContent = deployment;
+
+            // Update strategy description based on traffic level
+            const strategyDetails = document.getElementById('strategyDetails');
+            if (traffic === 'HIGH') {
+                strategyDetails.innerHTML = `
+                    <p><strong>🟢 HIGH Traffic Detected!</strong></p>
+                    <p>System is experiencing high load. <strong>Blue-Green Deployment</strong> is selected for:</p>
+                    <ul>
+                        <li>Zero-downtime deployments</li>
+                        <li>Instant rollback capability</li>
+                        <li>Seamless environment switching</li>
+                    </ul>
+                `;
+                document.querySelector('.deployment-card').style.borderLeft = '5px solid #ff6b6b';
+            } else {
+                strategyDetails.innerHTML = `
+                    <p><strong>🔵 LOW Traffic</strong></p>
+                    <p>System is under normal load. <strong>Rolling Deployment</strong> is selected for:</p>
+                    <ul>
+                        <li>Gradual, controlled rollout</li>
+                        <li>Resource-efficient updates</li>
+                        <li>Safer progressive deployment</li>
+                    </ul>
+                `;
+                document.querySelector('.deployment-card').style.borderLeft = '5px solid #4ecdc4';
+            }
+        }
+
+        // ========== GENERATE TRAFFIC SIMULATION ==========
+        // Sends 100 fetch requests to simulate high traffic load
+        async function generateTraffic() {
+            const btn = document.getElementById('generateBtn');
+            const progressContainer = document.getElementById('progressContainer');
+            
+            // Disable button and show progress
+            btn.disabled = true;
+            progressContainer.style.display = 'block';
+
+            console.log('Starting traffic generation - sending 100 requests...');
+
+            // Send 100 requests sequentially with progress updates
+            for (let i = 1; i <= 100; i++) {
+                try {
+                    // Send request to health check endpoint
+                    await fetch('/health');
+                    
+                    // Update progress bar and text every 10 requests
+                    if (i % 10 === 0) {
+                        const progress = (i / 100) * 100;
+                        document.getElementById('progressBar').style.width = progress + '%';
+                        document.getElementById('progressText').textContent = 
+                            `Generated ${i} requests... ${progress.toFixed(0)}%`;
+                    }
+                } catch (error) {
+                    console.error(`Request ${i} failed:`, error);
+                }
+
+                // Small delay between requests to avoid overwhelming the server
+                await new Promise(resolve => setTimeout(resolve, 10));
+            }
+
+            console.log('Traffic generation complete!');
+
+            // Fetch updated traffic data
+            await fetchTrafficData();
+
+            // Re-enable button and hide progress
+            btn.disabled = false;
+            progressContainer.style.display = 'none';
+            document.getElementById('progressBar').style.width = '0%';
+        }
+
+        // ========== RESET TRAFFIC COUNTER ==========
+        // Calls server endpoint to reset request count to zero
+        async function resetTraffic() {
+            try {
+                console.log('Resetting traffic counter...');
+                const response = await fetch('/api/reset-traffic');
+                const data = await response.json();
+                updateUI(data);
+                console.log('Traffic reset complete!');
+            } catch (error) {
+                console.error('Error resetting traffic:', error);
+            }
+        }
+
+        // ========== INITIALIZE UI ON PAGE LOAD ==========
+        // Fetch initial traffic data when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Student Portal loaded - initializing traffic dashboard');
+            fetchTrafficData();
+
+            // Auto-refresh traffic data every 2 seconds for live updates
+            setInterval(fetchTrafficData, 2000);
+        });
+
+        // ========== KEYBOARD SHORTCUTS ==========
+        // Allow quick testing with keyboard shortcuts
+        document.addEventListener('keydown', (event) => {
+            // Press 'G' to generate traffic
+            if (event.key.toLowerCase() === 'g') {
+                generateTraffic();
+            }
+            // Press 'R' to reset traffic
+            if (event.key.toLowerCase() === 'r') {
+                resetTraffic();
+            }
+        });
+    </script>
+</body>
+</html>

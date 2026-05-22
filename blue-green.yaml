@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+
+kind: Deployment
+
+metadata:
+  name: student-green
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: student-green
+
+  template:
+    metadata:
+      labels:
+        app: student-green
+
+    spec:
+      containers:
+      - name: student-app
+        image: shreyascs88/myapp:v2
+
+
+        ports:
+        - containerPort: 3000
