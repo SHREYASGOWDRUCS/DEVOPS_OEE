@@ -1,0 +1,13 @@
+{
+  "name": "student-portal",
+  "version": "2.0.0",
+  "description": "Simple Student Portal - Version 2 (View + Add Students)",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "node app.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
