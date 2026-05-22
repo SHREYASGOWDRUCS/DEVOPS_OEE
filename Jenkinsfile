@@ -37,21 +37,22 @@ pipeline {
                 }
             }
         }
-    stage('Deploy') {
-         steps {
 
-             script {
+        stage('Deploy') {
+            steps {
 
-                 if (env.STRATEGY == "rolling") {
+                script {
 
-                bat 'kubectl apply -f rolling.yaml --validate=false'
+                    if (env.STRATEGY == "rolling") {
 
-                 } else {
+                        echo "Deploying using Rolling Deployment"
 
-                    bat 'kubectl apply -f blue-green.yaml --validate=false'
+                    } else {
+
+                        echo "Deploying using Blue-Green Deployment"
+                    }
                 }
+            }
         }
-    }
-}
     }
 }
