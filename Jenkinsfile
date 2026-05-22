@@ -5,34 +5,31 @@ pipeline {
         choice(
             name: 'TRAFFIC',
             choices: ['LOW', 'HIGH'],
-            description: 'Select traffic level'
+            description: 'Traffic level'
         )
     }
 
     environment {
-        IMAGE_NAME = "student-portal:v1"
+        IMAGE_NAME = "student-portal:v2"
     }
 
     stages {
 
-        stage('Clone Code') {
-            steps {
-                git 'https://github.com/SHREYASGOWDRUCS/DEVOPS_OEE.git'
-            }
-        }
-
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t $IMAGE_NAME .'
+                echo "Building Docker Image"
             }
         }
 
         stage('Select Deployment Strategy') {
             steps {
                 script {
+
                     if (params.TRAFFIC == "HIGH") {
                         env.STRATEGY = "blue-green"
-                    } else {
+                    }
+
+                    else {
                         env.STRATEGY = "rolling"
                     }
 
@@ -43,11 +40,16 @@ pipeline {
 
         stage('Deploy') {
             steps {
+
                 script {
+
                     if (env.STRATEGY == "rolling") {
-                        sh 'kubectl apply -f rolling.yaml'
+
+                        echo "Deploying using Rolling Deployment"
+
                     } else {
-                        sh 'kubectl apply -f blue-green.yaml'
+
+                        echo "Deploying using Blue-Green Deployment"
                     }
                 }
             }
